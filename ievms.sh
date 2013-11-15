@@ -328,6 +328,13 @@ build_ievm() {
         local disk_path="${ievms_home}/${vm}-disk1.vmdk"
         log "Creating ${vm} VM (disk: ${disk_path})"
         VBoxManage import "${ova}" --vsys 0 --vmname "${vm}" --unit "${unit}" --disk "${disk_path}"
+        
+        log "Modifying ${vm} VRAM size to 32MB"
+        VBoxManage modifyvm "${vm}" --vram 32
+        
+        log "Enable hostiocache for IDE & SATA controllers in ${vm} VM" 
+        VBoxManage storagectl "${vm}" --name "IDE Controller" --hostiocache on 2> /dev/null || true
+        VBoxManage storagectl "${vm}" --name "SATA Controller" --hostiocache on 2> /dev/null || true
 
         log "Building ${vm} VM"
         declare -F "build_ievm_ie${1}" && "build_ievm_ie${1}"
